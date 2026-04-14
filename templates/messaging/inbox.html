@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Inbox{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold mb-0">Messages <span class="badge bg-primary ms-2">{{ unread }} unread</span></h4>
+  <a href="{% url 'new_message' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>New Message</a>
+</div>
+<div class="row g-3">
+  <div class="col-md-3">
+    <div class="card p-2">
+      <a href="{% url 'inbox' %}" class="btn btn-sm {% if section == 'inbox' %}btn-primary{% else %}btn-outline-secondary{% endif %} w-100 mb-1">Inbox</a>
+      <a href="{% url 'drafts' %}" class="btn btn-sm {% if section == 'draft' %}btn-primary{% else %}btn-outline-secondary{% endif %} w-100 mb-1">Drafts</a>
+      <a href="{% url 'sent_messages' %}" class="btn btn-sm {% if section == 'sent' %}btn-primary{% else %}btn-outline-secondary{% endif %} w-100">Sent</a>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div class="card p-2">
+      {% for msg in msgs %}
+      <a href="{% url 'view_message' msg.id %}" class="d-flex align-items-center gap-3 p-2 text-decoration-none border-bottom {% if not msg.read %}bg-light{% endif %} hover-bg">
+        <div style="width:36px;height:36px;border-radius:50%;background:#042A4A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;">
+          {{ msg.sender.first_name.0 }}{{ msg.sender.last_name.0 }}
+        </div>
+        <div class="flex-grow-1 min-width-0">
+          <div class="fw-semibold small {% if not msg.read %}text-dark{% else %}text-muted{% endif %}">{{ msg.sender.get_full_name }}</div>
+          <div class="small {% if not msg.read %}text-dark{% else %}text-muted{% endif %} text-truncate">{{ msg.subject }}</div>
+          <div class="text-muted" style="font-size:0.72rem;">{{ msg.body|truncatechars:60 }}</div>
+        </div>
+        <div class="text-muted small flex-shrink-0">{{ msg.created_at|timesince }} ago</div>
+        {% if not msg.read %}<span class="badge bg-primary flex-shrink-0" style="font-size:0.65rem;">New</span>{% endif %}
+      </a>
+      {% empty %}
+      <div class="p-5 text-center text-muted"><i class="fas fa-inbox fa-2x mb-3 opacity-25 d-block"></i>Your inbox is empty.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
