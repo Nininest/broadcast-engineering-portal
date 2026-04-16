@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}New Message{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold">New Message</h4>
+  <a href="{% url 'inbox' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+</div>
+<div class="card p-4" style="max-width:680px;">
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label small fw-semibold">To</label>
+      <select name="recipient" class="form-select" required>
+        <option value="">Select recipient...</option>
+        {% for user in users %}
+        <option value="{{ user.id }}" {% if initial_recipient and initial_recipient.id == user.id %}selected{% endif %}>{{ user.get_full_name }} (@{{ user.username }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label small fw-semibold">Subject</label>
+      <input type="text" name="subject" class="form-control" value="{{ initial_subject }}" placeholder="Message subject" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label small fw-semibold">Message</label>
+      <textarea name="body" class="form-control" rows="7" placeholder="Write your message here..." required></textarea>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" name="action" value="send" class="btn btn-primary"><i class="fas fa-paper-plane me-1"></i>Send</button>
+      <button type="submit" name="action" value="draft" class="btn btn-outline-secondary"><i class="fas fa-save me-1"></i>Save as Draft</button>
+      <a href="{% url 'inbox' %}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
