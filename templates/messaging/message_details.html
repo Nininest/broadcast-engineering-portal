@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}{{ msg.subject }}{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'inbox' %}">Messages</a></li><li class="breadcrumb-item active">{{ msg.subject }}</li></ol></nav>
+<div class="card p-4" style="max-width:680px;">
+  <h5 class="fw-bold mb-3">{{ msg.subject }}</h5>
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <span class="small text-muted">From: <strong>{{ msg.sender.get_full_name }}</strong></span>
+    <span class="text-muted">•</span>
+    <span class="small text-muted">To: <strong>{{ msg.recipient.get_full_name }}</strong></span>
+    <span class="text-muted">•</span>
+    <span class="small text-muted">{{ msg.created_at|date:"d M Y, H:i" }}</span>
+  </div>
+  <hr>
+  <p style="white-space:pre-wrap;">{{ msg.body }}</p>
+  <div class="d-flex gap-2 mt-3">
+    {% if msg.recipient == request.user %}
+    <a href="{% url 'reply_message' msg.id %}" class="btn btn-primary btn-sm">Reply</a>
+    {% endif %}
+    <a href="{% url 'delete_message' msg.id %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this message?')">Delete</a>
+    <a href="{% url 'inbox' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+</div>
+{% endblock %}
