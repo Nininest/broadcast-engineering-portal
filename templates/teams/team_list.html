@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Teams – Broadcast Engineering Portal{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <h3 class="fw-bold mb-1">
+      <i class="bi bi-people-fill text-primary me-2"></i>Engineering Teams
+    </h3>
+    <p class="text-muted mb-0">Browse and search all active engineering teams across Broadcast Company</p>
+  </div>
+  <span class="badge bg-primary fs-6 px-3 py-2">
+    {{ total_count }} team{{ total_count|pluralize }}
+  </span>
+</div>
+
+<!-- Search Bar -->
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body py-3">
+    <form method="get" class="d-flex gap-2 flex-wrap">
+      <div class="input-group flex-grow-1">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search text-muted"></i>
+        </span>
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          class="form-control border-start-0 ps-0"
+          placeholder="Search by team name, department, manager, or description..."
+          autofocus
+        >
+      </div>
+      <button type="submit" class="btn btn-primary px-4">Search</button>
+      {% if query %}
+      <a href="{% url 'teams:team_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-x me-1"></i>Clear
+      </a>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<!-- Search result info -->
+{% if query %}
+<p class="text-muted mb-3 small">
+  Showing <strong>{{ total_count }}</strong> result{{ total_count|pluralize }}
+  for "<em>{{ query }}</em>"
+</p>
+{% endif %}
+
+<!-- Team Cards Grid -->
+{% if teams %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+  {% for team in teams %}
+  <div class="col">
+    <div class="card h-100 shadow-sm border-0 team-card position-relative">
+      <div class="card-body pb-2">
+
+        <!-- Card header row -->
+        <div class="d-flex align-items-start justify-content-between mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                 style="width:40px;height:40px;flex-shrink:0;">
+              <i class="bi bi-people-fill text-primary"></i>
+            </div>
+            <h6 class="fw-bold mb-0 lh-sm">{{ team.name }}</h6>
+          </div>
+          {% if team.department_name %}
+          <span class="badge bg-secondary bg-opacity-15 text-secondary ms-1 text-nowrap">
+            {{ team.department_name }}
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Mission / description -->
+        {% if team.mission %}
+        <p class="card-text text-muted small mb-2" style="line-height:1.5;">
+          {{ team.mission|truncatechars:110 }}
+        </p>
+        {% elif team.description %}
+        <p class="card-text text-muted small mb-2" style="line-height:1.5;">
+          {{ team.description|truncatechars:110 }}
+        </p>
+        {% else %}
+        <p class="card-text text-muted small mb-2 fst-italic">No description provided.</p>
+        {% endif %}
+
+        <hr class="my-2 opacity-25">
+
+        <!-- Meta row -->
+        <div class="d-flex flex-wrap gap-3 small text-muted mb-2">
+          {% if team.manager %}
+          <span>
+            <i class="bi bi-person-badge me-1 text-primary"></i>
+            {{ team.manager.get_full_name|default:team.manager.username }}
+          </span>
+          {% endif %}
+          <span>
+            <i class="bi bi-people me-1 text-primary"></i>
+            {{ team.members.count }} member{{ team.members.count|pluralize }}
+          </span>
+          {% if team.email %}
+          <span>
+            <i class="bi bi-envelope me-1 text-primary"></i>
+            {{ team.email }}
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Skills badges -->
+        {% with skills=team.skills.all %}
+        {% if skills %}
+        <div class="d-flex flex-wrap gap-1 mt-1">
+          {% for skill in skills|slice:":5" %}
+          <span class="badge rounded-pill bg-light text-dark border" style="font-weight:400;font-size:0.72rem;">
+            {{ skill.name }}
+          </span>
+          {% endfor %}
+          {% if skills.count > 5 %}
+          <span class="badge rounded-pill bg-light text-muted border" style="font-size:0.72rem;">
+            +{{ skills.count|add:"-5" }} more
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+        {% endwith %}
+      </div>
+
+      <!-- Card footer buttons -->
+      <div class="card-footer bg-transparent border-top-0 d-flex gap-2 pb-3 px-3 flex-wrap">
+        <a href="{% url 'teams:team_detail' team.pk %}"
+           class="btn btn-sm btn-primary">
+          <i class="bi bi-eye me-1"></i>View
+        </a>
+        <a href="{% url 'teams:schedule_meeting' team.pk %}"
+           class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-calendar-check me-1"></i>Schedule
+        </a>
+        <a href="{% url 'teams:team_dependencies' team.pk %}"
+           class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-diagram-3 me-1"></i>Dependencies
+        </a>
+        {% if team.email %}
+        <a href="{% url 'teams:email_team' team.pk %}"
+           class="btn btn-sm btn-outline-success">
+          <i class="bi bi-envelope me-1"></i>Email
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty state -->
+<div class="text-center py-5">
+  <div class="mb-3">
+    <i class="bi bi-search display-2 text-muted opacity-50"></i>
+  </div>
+  <h5 class="text-muted">No teams found</h5>
+  {% if query %}
+  <p class="text-muted">
+    No results for "<em>{{ query }}</em>".
+    Try a different keyword or
+    <a href="{% url 'teams:team_list' %}">view all teams</a>.
+  </p>
+  {% else %}
+  <p class="text-muted">No active teams have been added yet.</p>
+  <a href="/admin/teams/team/add/" class="btn btn-primary mt-2">
+    <i class="bi bi-plus-circle me-1"></i>Add First Team (Admin)
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
