@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Sent Messages{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="fw-bold">Sent Messages</h4>
+  <a href="{% url 'new_message' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>New</a>
+</div>
+<div class="row g-3">
+  <div class="col-md-3"><div class="card p-2">
+    <a href="{% url 'inbox' %}" class="btn btn-sm btn-outline-secondary w-100 mb-1">Inbox</a>
+    <a href="{% url 'drafts' %}" class="btn btn-sm btn-outline-secondary w-100 mb-1">Drafts</a>
+    <a href="{% url 'sent_messages' %}" class="btn btn-sm btn-primary w-100">Sent</a>
+  </div></div>
+  <div class="col-md-9"><div class="card p-2">
+    {% for msg in msgs %}
+    <a href="{% url 'view_message' msg.id %}" class="d-flex align-items-center gap-3 p-2 text-decoration-none border-bottom">
+      <div style="width:36px;height:36px;border-radius:50%;background:#084070;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0;">{{ msg.recipient.first_name.0 }}{{ msg.recipient.last_name.0 }}</div>
+      <div class="flex-grow-1"><div class="small fw-semibold text-muted">To: {{ msg.recipient.get_full_name }}</div><div class="small text-truncate">{{ msg.subject }}</div></div>
+      <div class="text-muted small">{{ msg.created_at|timesince }} ago</div>
+    </a>
+    {% empty %}<div class="p-5 text-center text-muted">No sent messages.</div>{% endfor %}
+  </div></div>
+</div>
+{% endblock %}
