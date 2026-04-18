@@ -1,0 +1,32 @@
+﻿{% extends 'base.html' %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Meeting Schedule</h2>
+    <div class="mb-3">
+        <a href="?view=upcoming" class="btn btn-sm {% if view_type == 'upcoming' %}btn-primary{% else %}btn-outline-primary{% endif %}">Upcoming</a>
+        <a href="?view=weekly" class="btn btn-sm {% if view_type == 'weekly' %}btn-primary{% else %}btn-outline-primary{% endif %}">This Week</a>
+        <a href="?view=monthly" class="btn btn-sm {% if view_type == 'monthly' %}btn-primary{% else %}btn-outline-primary{% endif %}">This Month</a>
+    </div>
+    <a href="{% url 'scheduling:schedule_meeting' %}" class="btn btn-success mb-3">+ New Meeting</a>
+    {% if meetings %}
+        {% for meeting in meetings %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'scheduling:meeting_detail' meeting.pk %}">{{ meeting.title }}</a>
+                </h5>
+                <p class="card-text">
+                    <strong>Platform:</strong> {{ meeting.get_platform_display }}<br>
+                    <strong>Date & Time:</strong> {{ meeting.date_time|date:"D, d M Y H:i" }}<br>
+                    <strong>Duration:</strong> {{ meeting.duration_minutes }} minutes<br>
+                    <strong>Organizer:</strong> {{ meeting.organizer }}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No meetings scheduled.</p>
+    {% endif %}
+</div>
+{% endblock %}
