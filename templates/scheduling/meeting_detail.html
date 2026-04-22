@@ -1,0 +1,36 @@
+﻿{% extends 'base.html' %}
+{% block title %}{{ meeting.title }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ meeting.title }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <p><strong>Platform:</strong> {{ meeting.get_platform_display }}</p>
+            {% if meeting.meeting_link %}
+            <p><strong>Link:</strong> <a href="{{ meeting.meeting_link }}" target="_blank">Join Meeting</a></p>
+            {% endif %}
+            <p><strong>Date & Time:</strong> {{ meeting.date_time|date:"D, d M Y H:i" }}</p>
+            <p><strong>Duration:</strong> {{ meeting.duration_minutes }} minutes</p>
+            <p><strong>Organizer:</strong> {{ meeting.organizer }}</p>
+            <p><strong>Agenda:</strong></p>
+            <p>{{ meeting.agenda|linebreaks }}</p>
+            <p><strong>Attendees:</strong></p>
+            <ul>
+                {% for attendee in meeting.attendees.all %}
+                    <li>{{ attendee.get_full_name|default:attendee.username }}</li>
+                {% empty %}
+                    <li>No attendees added.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% if request.user == meeting.organizer %}
+    <form method="post" action="{% url 'scheduling:delete_meeting' meeting.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mt-3"
+                onclick="return confirm('Delete this meeting?')">Delete Meeting</button>
+    </form>
+    {% endif %}
+    <a href="{% url 'scheduling:schedule_list' %}" class="btn btn-secondary mt-2">Back to Schedule</a>
+</div>
+{% endblock %}
