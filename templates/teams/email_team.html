@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Email {{ team.name }} – Broadcast Engineering Portal{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'teams:team_list' %}" class="text-decoration-none">Teams</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'teams:team_detail' team.pk %}" class="text-decoration-none">{{ team.name }}</a>
+    </li>
+    <li class="breadcrumb-item active">Email Team</li>
+  </ol>
+</nav>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7 col-md-9">
+
+    <div class="card shadow-sm border-0">
+
+      <!-- Card Header -->
+      <div class="card-header text-white border-0" style="background:#1a1d2e; border-radius:10px 10px 0 0;">
+        <div class="d-flex align-items-center gap-3 py-1">
+          <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+               style="width:42px;height:42px;flex-shrink:0;">
+            <i class="bi bi-envelope-fill text-white fs-5"></i>
+          </div>
+          <div>
+            <h6 class="mb-0 fw-bold">Send Email to {{ team.name }}</h6>
+            <div class="small" style="color:#9ca3af;">
+              Message will be sent to <strong class="text-white">{{ team.email }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+
+        <!-- Info alert -->
+        <div class="alert alert-info d-flex gap-2 mb-4 border-0"
+             style="background:#eff6ff;color:#1e40af;border-radius:8px;">
+          <i class="bi bi-info-circle-fill flex-shrink-0 mt-1"></i>
+          <div class="small">
+            Your name (<strong>{{ user.get_full_name|default:user.username }}</strong>)
+            and email will be included so the team can reply to you directly.
+          </div>
+        </div>
+
+        <!-- From field (read-only display) -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing:.5px;">
+            From
+          </label>
+          <div class="form-control bg-light text-muted" style="cursor:default;">
+            {{ user.get_full_name|default:user.username }}
+            {% if user.email %}({{ user.email }}){% endif %}
+          </div>
+        </div>
+
+        <!-- To field (read-only display) -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-muted small text-uppercase" style="letter-spacing:.5px;">
+            To
+          </label>
+          <div class="form-control bg-light text-muted" style="cursor:default;">
+            {{ team.name }} &lt;{{ team.email }}&gt;
+          </div>
+        </div>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Subject -->
+          <div class="mb-3">
+            <label for="id_subject" class="form-label fw-semibold">
+              Subject <span class="text-danger">*</span>
+            </label>
+            {{ form.subject }}
+            {% if form.subject.errors %}
+            <div class="text-danger small mt-1">{{ form.subject.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Body -->
+          <div class="mb-4">
+            <label for="id_body" class="form-label fw-semibold">
+              Message <span class="text-danger">*</span>
+            </label>
+            {{ form.body }}
+            {% if form.body.errors %}
+            <div class="text-danger small mt-1">{{ form.body.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-send-fill me-2"></i>Send Message
+            </button>
+            <a href="{% url 'teams:team_detail' team.pk %}" class="btn btn-outline-secondary px-4">
+              <i class="bi bi-x me-1"></i>Cancel
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
