@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Department Detail</title>
+
+    <style>
+        body{
+            font-family:Arial;
+            background:#f5f5f5;
+            padding:30px;
+        }
+
+        .box{
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            width:700px;
+        }
+
+        .team{
+            background:#eef3f8;
+            padding:10px;
+            margin-top:10px;
+            border-radius:5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>{{ department.name }}</h1>
+
+    <p>
+        <strong>Organisation:</strong>
+        {{ department.organisation.name }}
+    </p>
+
+    <p>
+        <strong>Manager:</strong>
+        {{ department.manager }}
+    </p>
+
+    <p>
+        <strong>Email:</strong>
+        {{ department.email }}
+    </p>
+
+    <p>
+        <strong>Description:</strong>
+        {{ department.description }}
+    </p>
+
+    <p>
+        <strong>Total Teams:</strong>
+        {{ department.total_teams }}
+    </p>
+
+    <hr>
+
+    <h2>Teams</h2>
+
+    <div class="team">
+        Broadcast Monitoring
+    </div>
+
+    <div class="team">
+        Signal Transmission
+    </div>
+
+    <div class="team">
+        Media Operations
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Organisation Chart</title>
+
+    <style>
+        body{
+            font-family:Arial;
+            padding:30px;
+            background:#f8f9fa;
+        }
+
+        .org-box{
+            background:white;
+            padding:20px;
+            margin-bottom:20px;
+            border-radius:10px;
+        }
+
+        ul{
+            margin-top:10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Organisation Chart</h1>
+
+{% for organisation in organisations %}
+
+<div class="org-box">
+
+    <h2>{{ organisation.name }}</h2>
+
+    <ul>
+
+        {% for department in organisation.departments.all %}
+
+        <li>
+            {{ department.name }}
+            (Manager: {{ department.manager }})
+        </li>
+
+        {% empty %}
+
+        <li>No Departments Available</li>
+
+        {% endfor %}
+
+    </ul>
+
+</div>
+
+{% endfor %}
+
+</body>
+</html>

@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    
     #Our custom apps
     'core', 
     'teams', 
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'messaging', 
     'scheduling', 
     'reports',
+    
 ]
 
 MIDDLEWARE = [
