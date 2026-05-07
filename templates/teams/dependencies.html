@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ team.name }} – Dependencies{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
+<style>
+  #dep-graph { width: 100%; height: 420px; border: 1px solid #dee2e6; border-radius: 10px; background: #fff; }
+  .dep-badge-up   { background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb; }
+  .dep-badge-down { background:#d4edda;color:#155724;border:1px solid #c3e6cb; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'teams:team_list' %}"><i class="bi bi-people me-1"></i>Teams</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'teams:team_detail' team.pk %}">{{ team.name }}</a></li>
+    <li class="breadcrumb-item active">Dependencies</li>
+  </ol>
+</nav>
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div>
+    <h3 class="fw-bold mb-1"><i class="bi bi-diagram-3 text-primary me-2"></i>{{ team.name }} – Dependency Map</h3>
+    <p class="text-muted mb-0">Visualising upstream and downstream team relationships</p>
+  </div>
+  <a href="{% url 'teams:team_detail' team.pk %}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back to Team
+  </a>
+</div>
+
+<!-- Graph -->
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-header d-flex align-items-center gap-3" style="background:#1a1d2e;color:#fff;border-radius:10px 10px 0 0;">
+    <i class="bi bi-diagram-3"></i> Dependency Graph
+    <span class="ms-auto small text-secondary">Blue = focus &nbsp; Teal = upstream &nbsp; Green = downstream</span>
+  </div>
+  <div class="card-body p-0"><div id="dep-graph"></div></div>
+</div>
+
+<!-- Tables -->
+<div class="row g-4">
+  <!-- Upstream -->
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header fw-semibold"><i class="bi bi-arrow-up-circle-fill text-info me-2"></i>Upstream Dependencies ({{ upstream.count }})</div>
+      <div class="card-body p-0">
+        {% if upstream %}
+        <ul class="list-group list-group-flush">
+          {% for t in upstream %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% url 'teams:team_detail' t.pk %}" class="text-decoration-none fw-semibold">{{ t.name }}</a>
+            <div class="d-flex flex-column align-items-end gap-1">
+              {% if t.department_name %}<span class="badge dep-badge-up">{{ t.department_name }}</span>{% endif %}
+              {% if t.manager %}<small class="text-muted">{{ t.manager.get_full_name|default:t.manager.username }}</small>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted p-3 mb-0 fst-italic">No upstream dependencies.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Downstream -->
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header fw-semibold"><i class="bi bi-arrow-down-circle-fill text-success me-2"></i>Downstream Dependents ({{ downstream.count }})</div>
+      <div class="card-body p-0">
+        {% if downstream %}
+        <ul class="list-group list-group-flush">
+          {% for t in downstream %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% url 'teams:team_detail' t.pk %}" class="text-decoration-none fw-semibold">{{ t.name }}</a>
+            <div class="d-flex flex-column align-items-end gap-1">
+              {% if t.department_name %}<span class="badge dep-badge-down">{{ t.department_name }}</span>{% endif %}
+              {% if t.manager %}<small class="text-muted">{{ t.manager.get_full_name|default:t.manager.username }}</small>{% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted p-3 mb-0 fst-italic">No downstream dependents.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- vis-network for dependency graph -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+<script>
+(function () {
+  const rawNodes = {{ graph_nodes|safe }};
+  const rawEdges = {{ graph_edges|safe }};
+
+  const colorMap = {
+    focus:      { background: '#0d6efd', border: '#0a58ca', font: { color: '#fff' } },
+    upstream:   { background: '#0dcaf0', border: '#0aa2c0', font: { color: '#000' } },
+    downstream: { background: '#198754', border: '#146c43', font: { color: '#fff' } },
+  };
+
+  const nodes = new vis.DataSet(rawNodes.map(n => ({
+    id: n.id, label: n.label,
+    color: colorMap[n.group] || {},
+    font: (colorMap[n.group] || {}).font,
+    shape: 'box',
+    margin: 10,
+  })));
+
+  const edges = new vis.DataSet(rawEdges.map((e, i) => ({
+    id: i, from: e.from, to: e.to,
+    arrows: 'to',
+    color: { color: '#6c757d' },
+    smooth: { type: 'cubicBezier' },
+  })));
+
+  const container = document.getElementById('dep-graph');
+  new vis.Network(container, { nodes, edges }, {
+    layout: { hierarchical: { direction: 'LR', levelSeparation: 180, nodeSpacing: 120 } },
+    physics: false,
+    interaction: { hover: true, navigationButtons: true },
+  });
+})();
+</script>
+{% endblock %}
