@@ -1,0 +1,48 @@
+﻿{% extends 'base.html' %}
+{% block title %}Schedule Meeting{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Schedule a Meeting</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Agenda</label>
+            <textarea name="agenda" class="form-control" rows="4"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Platform</label>
+            <select name="platform" class="form-select" required>
+                {% for value, label in platforms %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Meeting Link</label>
+            <input type="url" name="meeting_link" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Date & Time</label>
+            <input type="datetime-local" name="date_time" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Duration (minutes)</label>
+            <input type="number" name="duration_minutes" class="form-control" value="60" min="15">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Attendees</label>
+            <select name="attendees" class="form-select" multiple>
+                {% for user in users %}
+                    <option value="{{ user.pk }}">{{ user.get_full_name|default:user.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Schedule Meeting</button>
+        <a href="{% url 'scheduling:schedule_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
